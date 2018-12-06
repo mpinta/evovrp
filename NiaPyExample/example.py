@@ -1,6 +1,7 @@
+import numpy as np
 from NiaPy.algorithms.basic.ga import GeneticAlgorithm
 from NiaPy.util import Task, OptimizationType
-import numpy as np
+
 
 class ExampleBenchmark(object):
 
@@ -10,7 +11,7 @@ class ExampleBenchmark(object):
         self.Upper = 10
 
     def function(self):
-        def evaluate(D, sol):
+        def evaluate(D, sol): # TODO: spremeni to funkcijo
             """ To se zažene na vsekem primerku v populaciji, da ga oceni.
                 D je velikost polja tega enega primerka.
                 sol je polje tega primerka
@@ -27,9 +28,11 @@ class ExampleBenchmark(object):
                 fitness = fitness + abs(phenotype[i] - i)
 
             return fitness
+
         return evaluate
 
     def to_phenotype(sol):  # TODO
+        # np.argsort(np.argsort(a))
         return np.round(sol)
 
 
@@ -48,9 +51,11 @@ if __name__ == '__main__':
     optF {real} -- Value added to benchmark function return
     """
 
-    task = Task(D=10, nGEN=10000, benchmark=ExampleBenchmark(), optType=OptimizationType.MINIMIZATION)
+    # D je število customerjev
+    task = Task(D=10, nGEN=100, benchmark=ExampleBenchmark(), optType=OptimizationType.MINIMIZATION)
 
+    # NP - število primerkov v populaciji
     ga = GeneticAlgorithm(seed=random_seed, task=task, NP=100)
     rezultat, fitness = ga.run()
-    print(rezultat,fitness)
-    print (ExampleBenchmark.to_phenotype(rezultat))
+    print(rezultat, fitness)
+    print(ExampleBenchmark.to_phenotype(rezultat))
