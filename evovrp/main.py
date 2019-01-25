@@ -13,7 +13,7 @@ if __name__ == '__main__':
 
     rand_seed = randint(1000, 10000)
     task = Task(D=len(objects[1]), nGEN=20, benchmark=Evaluation(objects), optType=OptimizationType.MINIMIZATION)
-    ga = GeneticAlgorithm(seed=1234, task=task, NP=50)
+    ga = GeneticAlgorithm(seed=rand_seed, task=task, NP=50)
 
     result, fitness = ga.run()
     print(result, fitness)

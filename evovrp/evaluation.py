@@ -1,107 +1,137 @@
 import numpy as np
 
 
+class Result:
+    def __init__(self):
+        self.capacity = 0
+        self.distance = 0.0
+        self.number_of_customers = 0
+        self.vehicle = None
+        self.depot = None
+
+
 class Evaluation(object):
     def __init__(self, objects):
         self.Lower = 0
         self.Upper = 10
-        self.objects = objects
+        self.penalty = 20
+        self.vehicles = objects[0]
+        self.customers = objects[1]
+        self.depots = objects[2]
 
     def function(self):
-        vehicles = self.objects[0]
-        customers = self.objects[1]
-        depots = self.objects[2]
-
-        def evaluate(D, sol):
+        def evaluate(d, sol):
             results = []
-            curr_result = [0, 0, 0]
-            fitness = 0.0
-            vd_counter = 0
-            node_counter = 0
-            vehicle_changed = False
-            phenotype = Evaluation.to_phenotype(sol)
+            curr_result = Result()
+            vehicle_depot_counter = 0
+            vehicle_depot_changed = False
+            phenotype = self.to_phenotype(sol)
 
-            for i in range(D):
-                node_counter += 1
-                vehicle, depot = self.set_vehicle_and_depot(vd_counter, vehicles, depots)
+            for i in range(d):
+                curr_result.number_of_customers += 1
+                curr_result = self.set_vehicle_depot(curr_result, vehicle_depot_counter)
 
-                befo_customer = self.find_before_customer(i, vehicle_changed, customers, phenotype)
-                curr_customer = self.find_customer(customers, phenotype[i])
-                next_customer = self.find_next_customer(i, customers, phenotype)
+                pre_customer = self.find_previous_customer(i, vehicle_depot_changed, phenotype)
+                curr_customer = self.find_customer(phenotype[i])
+                nxt_customer = self.find_next_customer(i, phenotype)
 
-                curr_result = self.get_result(vehicle, depot, curr_result, befo_customer, curr_customer)
-                curr_result.append(node_counter)
-                vehicle_changed = False
+                curr_result = self.get_result(curr_result, pre_customer, curr_customer)
+                vehicle_depot_changed = False
 
-                if self.check_next_customer(vehicle, depot, curr_result, curr_customer,
-                                            befo_customer, next_customer) == False:
+                if not self.check_next_customer(curr_result, curr_customer, nxt_customer):
+                    curr_result = self.get_last_distance(curr_result, curr_customer)
+
+                    if self.check_for_penalty(curr_result):
+                        self.add_penalty(curr_result)
+
                     results.append(curr_result)
-                    curr_result = [0, 0, 0]
-                    vehicle_changed = True
-                    vd_counter = self.set_vd_counter(vd_counter, vehicles)
-                    node_counter = 0
-
-            return Evaluation.get_fitness(results)
-
+                    curr_result = Result()
+                    vehicle_depot_changed = True
+                    vehicle_depot_counter = self.set_vehicle_depot_counter(vehicle_depot_counter)
+            print(self.get_fitness(results))
+            return self.get_fitness(results)
         return evaluate
 
-    def to_phenotype(sol):
-        return np.argsort(np.argsort(sol)) + 1
+    def add_penalty(self, curr_result):
+        curr_result.distance += self.penalty
+        return curr_result
 
-    def get_fitness(results):
-        fitness = 0.0
-        for i in results:
-            fitness = fitness + abs(1 / i[1] - i[2])
-        return fitness
+    @staticmethod
+    def check_for_penalty(curr_result):
+        if curr_result.distance > float(curr_result.vehicle.max_duration):
+            return True
+        return False
 
-    def find_before_customer(self, i, vehicle_changed, customers, phenotype):
-        if i == 0 or vehicle_changed == True:
-            vehicle_changed = False
-            return -1
-        return self.find_customer(customers, phenotype[i - 1])
+    def check_next_customer(self, curr_result, curr_customer, nxt_customer):
+        if nxt_customer == -1:
+            return False
 
-    def find_next_customer(self, i, customers, phenotype):
-        if (i + 1) >= len(customers):
-            return -1
-        return self.find_customer(customers, phenotype[i + 1])
+        nxt_capacity = curr_result.capacity + float(nxt_customer.capacity)
+        nxt_distance = curr_result.distance + self.get_distance(curr_result.depot, curr_customer, nxt_customer)
 
-    def find_customer(self, customers, key):
-        for i in customers:
+        if nxt_capacity > float(curr_result.vehicle.max_capacity) or nxt_distance > float(curr_result.vehicle.max_duration):
+            return False
+        return True
+
+    def find_customer(self, key):
+        for i in self.customers:
             if i.key == str(key):
                 return i
 
-    def set_vehicle_and_depot(self, vd_counter, vehicles, depots):
-        return vehicles[vd_counter], depots[vd_counter]
+    def find_previous_customer(self, i, vehicle_depot_changed, phenotype):
+        if i == 0 or vehicle_depot_changed is True:
+            return -1
+        return self.find_customer(phenotype[i - 1])
 
-    def set_vd_counter(self, vd_counter, vehicles):
-        if (vd_counter + 1) >= len(vehicles):
-            return 0
-        return vd_counter + 1
+    def find_next_customer(self, i, phenotype):
+        if (i + 1) >= len(self.customers):
+            return -1
+        return self.find_customer(phenotype[i + 1])
 
-    def get_result(self, vehicle, depot, curr_result, befo_customer, curr_customer):
-        return [curr_result[0] + float(curr_customer.capacity),
-                curr_result[1] + self.get_distance(vehicle, depot, befo_customer, curr_customer)]
+    @staticmethod
+    def get_fitness(results):
+        fitness = 0.0
+        for i in results:
+            fitness += i.distance
+        return fitness
 
-    def get_distance(self, vehicle, depot, befo_customer, curr_customer):
-        if befo_customer == -1:
+    @staticmethod
+    def get_distance(depot, customer_one, customer_two):
+        if customer_one == -1:
             x1 = float(depot.x)
             y1 = float(depot.y)
         else:
-            x1 = float(befo_customer.x)
-            y1 = float(befo_customer.y)
+            x1 = float(customer_one.x)
+            y1 = float(customer_one.y)
 
-        x2 = float(curr_customer.x)
-        y2 = float(curr_customer.y)
+        if customer_two == -1:
+            x2 = float(depot.x)
+            y2 = float(depot.y)
+        else:
+            x2 = float(customer_two.x)
+            y2 = float(customer_two.y)
 
         return np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
-    def check_next_customer(self, vehicle, depot, curr_result, curr_customer, before_customer, next_customer):
-        if next_customer == -1:
-            return False
+    def get_result(self, curr_result, pre_customer, curr_customer):
+        curr_result.capacity += float(curr_customer.capacity)
+        curr_result.distance += self.get_distance(curr_result.depot, pre_customer, curr_customer)
+        return curr_result
 
-        next_capacity = curr_result[0] + float(next_customer.capacity)
-        next_distance = curr_result[1] + self.get_distance(vehicle, depot, curr_customer, next_customer)
+    def get_last_distance(self, curr_result, curr_customer):
+        curr_result.distance += self.get_distance(curr_result.depot, curr_customer, -1)
+        return curr_result
 
-        if next_capacity > float(vehicle.max_capacity) or next_distance > float(vehicle.max_duration):
-            return False
-        return True
+    def set_vehicle_depot(self, curr_result, vehicle_depot_counter):
+        curr_result.vehicle = self.vehicles[vehicle_depot_counter]
+        curr_result.depot = self.depots[vehicle_depot_counter]
+        return curr_result
+
+    def set_vehicle_depot_counter(self, vehicle_depot_counter):
+        if (vehicle_depot_counter + 1) >= len(self.vehicles):
+            return 0
+        return vehicle_depot_counter + 1
+
+    @staticmethod
+    def to_phenotype(sol):
+        return np.argsort(np.argsort(sol)) + 1
