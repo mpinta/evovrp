@@ -4,30 +4,38 @@ from evovrp.graph import Graph
 
 
 class Result:
-    def __init__(self):
+    def __init__(self, generation, population):
         self.capacity = 0
         self.distance = 0.0
         self.vehicle = None
         self.depot = None
         self.customers = []
+        self.generation = generation
+        self.population = population
 
 
 class Evaluation(object):
-    def __init__(self, objects):
+    def __init__(self, objects, population_size):
         self.Lower = 0
         self.Upper = 10
         self.penalty = 20
         self.vehicles = objects[0]
         self.customers = objects[1]
         self.depots = objects[2]
+        self.generation_counter = 1
+        self.population_counter = 0
+        self.population_size = population_size
 
     def function(self):
         def evaluate(d, sol):
+            self.set_population_counter()
+            self.set_generation_counter()
+
             results = []
-            curr_result = Result()
             vehicle_depot_counter = 0
             vehicle_depot_changed = False
             phenotype = self.to_phenotype(sol)
+            curr_result = Result(self.generation_counter, self.population_counter)
 
             graph = Graph(self.vehicles, self.customers, self.depots)
 
@@ -49,7 +57,7 @@ class Evaluation(object):
                         self.add_penalty(curr_result)
 
                     results.append(curr_result)
-                    curr_result = Result()
+                    curr_result = Result(self.generation_counter, self.population_counter)
                     vehicle_depot_changed = True
                     vehicle_depot_counter = self.set_vehicle_depot_counter(vehicle_depot_counter)
 
@@ -57,31 +65,23 @@ class Evaluation(object):
             return self.get_fitness(results)
         return evaluate
 
-    @staticmethod
-    def add_customer_to_result(curr_result, curr_customer):
-        curr_result.customers.append(curr_customer)
+    def set_population_counter(self):
+        self.population_counter += 1
+
+    def set_generation_counter(self):
+        if self.population_counter > self.population_size:
+            self.generation_counter += 1
+            self.population_counter = 1
+
+    def set_vehicle_depot_counter(self, vehicle_depot_counter):
+        if (vehicle_depot_counter + 1) >= len(self.vehicles):
+            return 0
+        return vehicle_depot_counter + 1
+
+    def set_vehicle_depot(self, curr_result, vehicle_depot_counter):
+        curr_result.vehicle = self.vehicles[vehicle_depot_counter]
+        curr_result.depot = self.depots[vehicle_depot_counter]
         return curr_result
-
-    def add_penalty(self, curr_result):
-        curr_result.distance += self.penalty
-        return curr_result
-
-    @staticmethod
-    def check_for_penalty(curr_result):
-        if curr_result.distance > float(curr_result.vehicle.max_duration):
-            return True
-        return False
-
-    def check_next_customer(self, curr_result, curr_customer, nxt_customer):
-        if nxt_customer == -1:
-            return False
-
-        nxt_capacity = curr_result.capacity + float(nxt_customer.capacity)
-        nxt_distance = curr_result.distance + self.get_distance(curr_result.depot, curr_customer, nxt_customer)
-
-        if nxt_capacity > float(curr_result.vehicle.max_capacity) or nxt_distance > float(curr_result.vehicle.max_duration):
-            return False
-        return True
 
     def find_customer(self, key):
         for i in self.customers:
@@ -99,11 +99,22 @@ class Evaluation(object):
         return self.find_customer(phenotype[i + 1])
 
     @staticmethod
-    def get_fitness(results):
-        fitness = 0.0
-        for i in results:
-            fitness += i.distance
-        return fitness
+    def check_for_penalty(curr_result):
+        if curr_result.distance > float(curr_result.vehicle.max_duration):
+            return True
+        return False
+
+    def check_next_customer(self, curr_result, curr_customer, nxt_customer):
+        if nxt_customer == -1:
+            return False
+
+        nxt_capacity = curr_result.capacity + float(nxt_customer.capacity)
+        nxt_distance = curr_result.distance + self.get_distance(curr_result.depot, curr_customer, nxt_customer)
+
+        if nxt_capacity > float(curr_result.vehicle.max_capacity) or nxt_distance > \
+                float(curr_result.vehicle.max_duration):
+            return False
+        return True
 
     @staticmethod
     def get_distance(depot, customer_one, customer_two):
@@ -132,15 +143,21 @@ class Evaluation(object):
         curr_result.distance += self.get_distance(curr_result.depot, curr_customer, -1)
         return curr_result
 
-    def set_vehicle_depot(self, curr_result, vehicle_depot_counter):
-        curr_result.vehicle = self.vehicles[vehicle_depot_counter]
-        curr_result.depot = self.depots[vehicle_depot_counter]
+    @staticmethod
+    def get_fitness(results):
+        fitness = 0.0
+        for i in results:
+            fitness += i.distance
+        return fitness
+
+    @staticmethod
+    def add_customer_to_result(curr_result, curr_customer):
+        curr_result.customers.append(curr_customer)
         return curr_result
 
-    def set_vehicle_depot_counter(self, vehicle_depot_counter):
-        if (vehicle_depot_counter + 1) >= len(self.vehicles):
-            return 0
-        return vehicle_depot_counter + 1
+    def add_penalty(self, curr_result):
+        curr_result.distance += self.penalty
+        return curr_result
 
     @staticmethod
     def to_phenotype(sol):

@@ -29,7 +29,6 @@ class File:
                     customers.append(Customer(j[0], j[1], j[2], j[3], j[4]))
                 elif i == 2:
                     depots.append(Depot(j[0], j[1], j[2], j[3], j[4]))
-
         return [vehicles, customers, depots]
 
     def get_rows(self):
@@ -40,12 +39,12 @@ class File:
         vehicle_rows = self.data[1:vehicle_num + 1]
         customer_rows = self.data[vehicle_num + 1:vehicle_num + customer_num + 1]
         depot_rows = self.data[vehicle_num + customer_num + 1: vehicle_num + customer_num + depot_num + 1]
-
         return [vehicle_rows, self.clean(customer_rows), self.clean(depot_rows)]
 
     @staticmethod
     def clean(rows):
         cleaned = []
+
         for i in rows:
             row = []
             for j in i:

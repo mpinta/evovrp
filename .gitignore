@@ -116,3 +116,6 @@ dmypy.json
 
 # Pycharm project settings
 .idea/*
+
+# Generated images
+images/*
