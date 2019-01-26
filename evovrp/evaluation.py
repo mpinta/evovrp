@@ -1,13 +1,15 @@
 import numpy as np
 
+from evovrp.graph import Graph
+
 
 class Result:
     def __init__(self):
         self.capacity = 0
         self.distance = 0.0
-        self.number_of_customers = 0
         self.vehicle = None
         self.depot = None
+        self.customers = []
 
 
 class Evaluation(object):
@@ -27,8 +29,9 @@ class Evaluation(object):
             vehicle_depot_changed = False
             phenotype = self.to_phenotype(sol)
 
+            graph = Graph(self.vehicles, self.customers, self.depots)
+
             for i in range(d):
-                curr_result.number_of_customers += 1
                 curr_result = self.set_vehicle_depot(curr_result, vehicle_depot_counter)
 
                 pre_customer = self.find_previous_customer(i, vehicle_depot_changed, phenotype)
@@ -36,6 +39,7 @@ class Evaluation(object):
                 nxt_customer = self.find_next_customer(i, phenotype)
 
                 curr_result = self.get_result(curr_result, pre_customer, curr_customer)
+                curr_result = self.add_customer_to_result(curr_result, curr_customer)
                 vehicle_depot_changed = False
 
                 if not self.check_next_customer(curr_result, curr_customer, nxt_customer):
@@ -48,9 +52,15 @@ class Evaluation(object):
                     curr_result = Result()
                     vehicle_depot_changed = True
                     vehicle_depot_counter = self.set_vehicle_depot_counter(vehicle_depot_counter)
-            print(self.get_fitness(results))
+
+            graph.draw(results)
             return self.get_fitness(results)
         return evaluate
+
+    @staticmethod
+    def add_customer_to_result(curr_result, curr_customer):
+        curr_result.customers.append(curr_customer)
+        return curr_result
 
     def add_penalty(self, curr_result):
         curr_result.distance += self.penalty

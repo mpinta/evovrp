@@ -43,7 +43,8 @@ class File:
 
         return [vehicle_rows, self.clean(customer_rows), self.clean(depot_rows)]
 
-    def clean(self, rows):
+    @staticmethod
+    def clean(rows):
         cleaned = []
         for i in rows:
             row = []

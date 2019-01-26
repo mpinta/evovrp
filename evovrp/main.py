@@ -3,7 +3,6 @@ from NiaPy.util import Task, OptimizationType
 from NiaPy.algorithms.basic.ga import GeneticAlgorithm
 
 from evovrp.file import File
-from evovrp.graph import Graph
 from evovrp.evaluation import Evaluation
 
 
@@ -19,5 +18,4 @@ if __name__ == '__main__':
     print(result, fitness)
     print(Evaluation.to_phenotype(result))
 
-    g = Graph(objects)
-    g.draw()
+
