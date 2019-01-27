@@ -1,6 +1,5 @@
 import csv
-
-from evovrp.classes import Vehicle, Customer, Depot
+import evovrp.classes as classes
 
 
 class File:
@@ -24,11 +23,11 @@ class File:
         for i in range(3):
             for j in rows[i]:
                 if i == 0:
-                    vehicles.append(Vehicle(j[0], j[1]))
+                    vehicles.append(classes.Vehicle(j[0], j[1]))
                 elif i == 1:
-                    customers.append(Customer(j[0], j[1], j[2], j[3], j[4]))
+                    customers.append(classes.Customer(j[0], j[1], j[2], j[3], j[4]))
                 elif i == 2:
-                    depots.append(Depot(j[0], j[1], j[2], j[3], j[4]))
+                    depots.append(classes.Depot(j[0], j[1], j[2], j[3], j[4]))
         return [vehicles, customers, depots]
 
     def get_rows(self):
@@ -44,7 +43,6 @@ class File:
     @staticmethod
     def clean(rows):
         cleaned = []
-
         for i in rows:
             row = []
             for j in i:

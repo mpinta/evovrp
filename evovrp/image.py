@@ -1,18 +1,33 @@
 import os
+import imageio
+import evovrp.utils as utils
+import evovrp.directory as directory
 
 
 class Image:
-    def save(self, plt, population, generation, index):
-        self.create_generation_directory(str(generation))
-        self.create_population_directory(str(population), str(generation))
-        plt.savefig('../images/generation' + str(generation) + '/population' + str(population) + '/image' + str(index))
+    def __init__(self, generation, instance):
+        self.image_counter = 1
+        self.generation = generation
+        self.instance = instance
+        directory.Directory.create_directories(self.generation, self.instance)
+
+    def save(self, plt):
+        plt.savefig(utils.images_dir + utils.generation_dir + self.generation + utils.instance_dir + self.instance +
+                    utils.image_name + str(self.image_counter))
+        self.image_counter += 1
+
+    def create_gif(self):
+        folder_path = utils.images_dir + utils.generation_dir + self.generation + utils.instance_dir + self.instance
+        images = []
+        file_names = self.get_file_names(folder_path)
+
+        for i in file_names:
+            images.append(imageio.imread(folder_path + '/' + i))
+        imageio.mimsave(folder_path + '.gif', images, duration=0.5)
 
     @staticmethod
-    def create_generation_directory(generation):
-        if not os.path.exists('../images/generation' + generation):
-            os.makedirs('../images/generation' + generation)
-
-    @staticmethod
-    def create_population_directory(population, generation):
-        if not os.path.exists('../images/generation' + generation + '/population' + population):
-            os.makedirs('../images/generation' + generation + '/population' + population)
+    def get_file_names(folder_path):
+        file_names = []
+        for file in os.listdir(folder_path):
+            file_names.append(os.fsdecode(file))
+        return utils.sort_to_order(file_names)

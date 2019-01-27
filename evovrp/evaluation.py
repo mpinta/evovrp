@@ -1,17 +1,6 @@
 import numpy as np
-
-from evovrp.graph import Graph
-
-
-class Result:
-    def __init__(self, generation, population):
-        self.capacity = 0
-        self.distance = 0.0
-        self.vehicle = None
-        self.depot = None
-        self.customers = []
-        self.generation = generation
-        self.population = population
+import evovrp.graph as graph
+import evovrp.classes as classes
 
 
 class Evaluation(object):
@@ -22,22 +11,22 @@ class Evaluation(object):
         self.vehicles = objects[0]
         self.customers = objects[1]
         self.depots = objects[2]
+        self.instance_counter = 0
         self.generation_counter = 1
-        self.population_counter = 0
         self.population_size = population_size
 
     def function(self):
         def evaluate(d, sol):
-            self.set_population_counter()
+            self.set_instance_counter()
             self.set_generation_counter()
 
             results = []
             vehicle_depot_counter = 0
             vehicle_depot_changed = False
             phenotype = self.to_phenotype(sol)
-            curr_result = Result(self.generation_counter, self.population_counter)
+            curr_result = classes.Result(self.generation_counter, self.instance_counter)
 
-            graph = Graph(self.vehicles, self.customers, self.depots)
+            g = graph.Graph(self.vehicles, self.customers, self.depots)
 
             for i in range(d):
                 curr_result = self.set_vehicle_depot(curr_result, vehicle_depot_counter)
@@ -57,21 +46,21 @@ class Evaluation(object):
                         self.add_penalty(curr_result)
 
                     results.append(curr_result)
-                    curr_result = Result(self.generation_counter, self.population_counter)
+                    curr_result = classes.Result(self.generation_counter, self.instance_counter)
                     vehicle_depot_changed = True
                     vehicle_depot_counter = self.set_vehicle_depot_counter(vehicle_depot_counter)
 
-            graph.draw(results)
+            g.draw(results)
             return self.get_fitness(results)
         return evaluate
 
-    def set_population_counter(self):
-        self.population_counter += 1
+    def set_instance_counter(self):
+        self.instance_counter += 1
 
     def set_generation_counter(self):
-        if self.population_counter > self.population_size:
+        if self.instance_counter > self.population_size:
             self.generation_counter += 1
-            self.population_counter = 1
+            self.instance_counter = 1
 
     def set_vehicle_depot_counter(self, vehicle_depot_counter):
         if (vehicle_depot_counter + 1) >= len(self.vehicles):
@@ -134,6 +123,13 @@ class Evaluation(object):
 
         return np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
+    @staticmethod
+    def get_fitness(results):
+        fitness = 0.0
+        for i in results:
+            fitness += i.distance
+        return fitness
+
     def get_result(self, curr_result, pre_customer, curr_customer):
         curr_result.capacity += float(curr_customer.capacity)
         curr_result.distance += self.get_distance(curr_result.depot, pre_customer, curr_customer)
@@ -142,13 +138,6 @@ class Evaluation(object):
     def get_last_distance(self, curr_result, curr_customer):
         curr_result.distance += self.get_distance(curr_result.depot, curr_customer, -1)
         return curr_result
-
-    @staticmethod
-    def get_fitness(results):
-        fitness = 0.0
-        for i in results:
-            fitness += i.distance
-        return fitness
 
     @staticmethod
     def add_customer_to_result(curr_result, curr_customer):

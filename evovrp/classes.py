@@ -20,3 +20,14 @@ class Depot:
         self.y = y
         self.max_duration = max_duration
         self.max_capacity = max_capacity
+
+
+class Result:
+    def __init__(self, generation, instance):
+        self.capacity = 0
+        self.distance = 0.0
+        self.vehicle = None
+        self.depot = None
+        self.customers = []
+        self.generation = generation
+        self.instance = instance

@@ -18,6 +18,7 @@ setup(
     install_requires=[
         'numpy',
         'matplotlib',
+        'imageio',
         'NiaPy==2.0.0rc4'
     ]
 )
