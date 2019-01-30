@@ -4,6 +4,8 @@ import evovrp.classes as classes
 
 
 class Evaluation(object):
+    fitnesses = []
+
     def __init__(self, objects, population_size):
         self.Lower = 0
         self.Upper = 10
@@ -31,15 +33,15 @@ class Evaluation(object):
             for i in range(d):
                 curr_result = self.set_vehicle_depot(curr_result, vehicle_depot_counter)
 
-                pre_customer = self.find_previous_customer(i, vehicle_depot_changed, phenotype)
+                prev_customer = self.find_previous_customer(i, vehicle_depot_changed, phenotype)
                 curr_customer = self.find_customer(phenotype[i])
-                nxt_customer = self.find_next_customer(i, phenotype)
+                next_customer = self.find_next_customer(i, phenotype)
 
-                curr_result = self.get_result(curr_result, pre_customer, curr_customer)
+                curr_result = self.get_result(curr_result, prev_customer, curr_customer)
                 curr_result = self.add_customer_to_result(curr_result, curr_customer)
                 vehicle_depot_changed = False
 
-                if not self.check_next_customer(curr_result, curr_customer, nxt_customer):
+                if not self.check_next_customer(curr_result, curr_customer, next_customer):
                     curr_result = self.get_last_distance(curr_result, curr_customer)
 
                     if self.check_for_penalty(curr_result):
@@ -50,8 +52,9 @@ class Evaluation(object):
                     vehicle_depot_changed = True
                     vehicle_depot_counter = self.set_vehicle_depot_counter(vehicle_depot_counter)
 
-            g.draw(results)
-            return self.get_fitness(results)
+            fitness = self.create_fitness(results, phenotype)
+            g.draw(results, fitness)
+            return fitness.value
         return evaluate
 
     def set_instance_counter(self):
@@ -74,7 +77,7 @@ class Evaluation(object):
 
     def find_customer(self, key):
         for i in self.customers:
-            if i.key == str(key):
+            if i.key == key:
                 return i
 
     def find_previous_customer(self, i, vehicle_depot_changed, phenotype):
@@ -88,38 +91,48 @@ class Evaluation(object):
         return self.find_customer(phenotype[i + 1])
 
     @staticmethod
+    def find_best_instance(fitness):
+        for i in Evaluation.fitnesses:
+            if i.value == fitness:
+                return i
+
+    @staticmethod
     def check_for_penalty(curr_result):
-        if curr_result.distance > float(curr_result.vehicle.max_duration):
+        if curr_result.distance > curr_result.vehicle.max_duration:
             return True
         return False
 
-    def check_next_customer(self, curr_result, curr_customer, nxt_customer):
-        if nxt_customer == -1:
+    def check_next_customer(self, curr_result, curr_customer, next_customer):
+        if next_customer == -1:
             return False
 
-        nxt_capacity = curr_result.capacity + float(nxt_customer.capacity)
-        nxt_distance = curr_result.distance + self.get_distance(curr_result.depot, curr_customer, nxt_customer)
+        next_capacity = curr_result.capacity + next_customer.capacity
+        next_distance = curr_result.distance + self.get_distance(curr_result.depot, curr_customer, next_customer)
 
-        if nxt_capacity > float(curr_result.vehicle.max_capacity) or nxt_distance > \
-                float(curr_result.vehicle.max_duration):
+        if next_capacity > curr_result.vehicle.max_capacity or next_distance > curr_result.vehicle.max_duration:
             return False
         return True
+
+    def create_fitness(self, results, phenotype):
+        fitness = classes.Fitness(self.generation_counter, self.instance_counter, self.get_fitness(results), phenotype.tolist())
+        Evaluation.fitnesses.append(fitness)
+        return fitness
 
     @staticmethod
     def get_distance(depot, customer_one, customer_two):
         if customer_one == -1:
-            x1 = float(depot.x)
-            y1 = float(depot.y)
+            x1 = depot.x
+            y1 = depot.y
         else:
-            x1 = float(customer_one.x)
-            y1 = float(customer_one.y)
+            x1 = customer_one.x
+            y1 = customer_one.y
 
         if customer_two == -1:
-            x2 = float(depot.x)
-            y2 = float(depot.y)
+            x2 = depot.x
+            y2 = depot.y
         else:
-            x2 = float(customer_two.x)
-            y2 = float(customer_two.y)
+            x2 = customer_two.x
+            y2 = customer_two.y
 
         return np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
@@ -130,9 +143,9 @@ class Evaluation(object):
             fitness += i.distance
         return fitness
 
-    def get_result(self, curr_result, pre_customer, curr_customer):
-        curr_result.capacity += float(curr_customer.capacity)
-        curr_result.distance += self.get_distance(curr_result.depot, pre_customer, curr_customer)
+    def get_result(self, curr_result, prev_customer, curr_customer):
+        curr_result.capacity += curr_customer.capacity
+        curr_result.distance += self.get_distance(curr_result.depot, prev_customer, curr_customer)
         return curr_result
 
     def get_last_distance(self, curr_result, curr_customer):

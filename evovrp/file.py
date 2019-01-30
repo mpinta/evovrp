@@ -23,11 +23,11 @@ class File:
         for i in range(3):
             for j in rows[i]:
                 if i == 0:
-                    vehicles.append(classes.Vehicle(j[0], j[1]))
+                    vehicles.append(classes.Vehicle(float(j[0]), float(j[1])))
                 elif i == 1:
-                    customers.append(classes.Customer(j[0], j[1], j[2], j[3], j[4]))
+                    customers.append(classes.Customer(float(j[0]), float(j[1]), float(j[2]), float(j[3]), float(j[4])))
                 elif i == 2:
-                    depots.append(classes.Depot(j[0], j[1], j[2], j[3], j[4]))
+                    depots.append(classes.Depot(float(j[0]), float(j[1]), float(j[2])))
         return [vehicles, customers, depots]
 
     def get_rows(self):

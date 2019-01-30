@@ -14,12 +14,10 @@ class Customer:
 
 
 class Depot:
-    def __init__(self, key, x, y, max_duration, max_capacity):
+    def __init__(self, key, x, y):
         self.key = key
         self.x = x
         self.y = y
-        self.max_duration = max_duration
-        self.max_capacity = max_capacity
 
 
 class Result:
@@ -31,3 +29,12 @@ class Result:
         self.customers = []
         self.generation = generation
         self.instance = instance
+
+
+class Fitness:
+    def __init__(self, generation, instance, value, phenotype):
+        self.generation = generation
+        self.instance = instance
+        self.value = value
+        self.phenotype = phenotype
+

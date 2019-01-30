@@ -25,9 +25,13 @@ class Image:
             images.append(imageio.imread(folder_path + '/' + i))
         imageio.mimsave(folder_path + '.gif', images, duration=0.5)
 
-    @staticmethod
-    def get_file_names(folder_path):
+    def get_file_names(self, folder_path):
         file_names = []
         for file in os.listdir(folder_path):
             file_names.append(os.fsdecode(file))
-        return utils.sort_to_order(file_names)
+        return self.sort_to_order(file_names)
+
+    @staticmethod
+    def sort_to_order(data):
+        data.sort(key=lambda i: int(''.join(filter(str.isdigit, i))))
+        return data
