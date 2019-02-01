@@ -10,7 +10,7 @@ class Graph:
         self.depots = depots
 
     def draw(self, results, fitness):
-        plt.figure(figsize=(8, 8), dpi=80)
+        plt.figure(figsize=(10, 10), dpi=90)
         self.draw_depots()
         self.draw_customers()
         self.draw_legend()
@@ -23,18 +23,16 @@ class Graph:
         sorted(coordinates)
         for index, i in enumerate(coordinates):
             if index == 0:
-                plt.scatter(i[0], i[1], alpha=0.8, c='C0', edgecolors='C0', s=30, label='Depot')
-            plt.scatter(i[0], i[1], alpha=0.8, c='C0', edgecolors='C0', s=30)
-            # plt.text(i[0], i[1], str(index + 1), color="black", fontsize=12)
+                plt.scatter(i[0], i[1], alpha=0.8, c='C0', edgecolors='C0', s=30, label='Depot', zorder=2)
+            plt.scatter(i[0], i[1], alpha=0.8, c='C0', edgecolors='C0', s=30, zorder=2)
 
     def draw_customers(self):
         coordinates = self.get_coordinates(self.customers)
         sorted(coordinates)
         for index, i in enumerate(coordinates):
             if index == 0:
-                plt.scatter(i[0], i[1], alpha=0.5, c='C1', edgecolors='C1', s=30, label='Customer')
-            plt.scatter(i[0], i[1], alpha=0.5, c='C1', edgecolors='C1', s=30)
-            # plt.text(i[0], i[1], str(index + 1), color="black", fontsize=10)
+                plt.scatter(i[0], i[1], alpha=0.8, c='C1', edgecolors='C1', s=30, label='Customer', zorder=2)
+            plt.scatter(i[0], i[1], alpha=0.8, c='C1', edgecolors='C1', s=30, zorder=2)
 
     @staticmethod
     def draw_legend():
@@ -43,7 +41,7 @@ class Graph:
     @staticmethod
     def draw_text(fitness):
         plt.suptitle('Generation: ' + str(fitness.generation) + ', Instance: ' + str(fitness.instance), fontsize=16)
-        plt.title('Fitness: ' + str(fitness.value) + '\n' + 'Phenotype: ' + str(fitness.phenotype), fontsize=14)
+        plt.title('Fitness: ' + str(round(fitness.value, 2)), fontsize=14)
 
     def draw_connections(self, results, fitness):
         img = image.Image(str(fitness.generation), str(fitness.instance))
@@ -56,9 +54,10 @@ class Graph:
             for index, j in enumerate(coordinates):
                 if index == len(coordinates)-1:
                     break
-                plt.plot([j[0], coordinates[index + 1][0]], [j[1], coordinates[index + 1][1]], alpha=0.5, c=color)
+                plt.plot([j[0], coordinates[index + 1][0]], [j[1], coordinates[index + 1][1]],
+                         alpha=0.5, c=color, zorder=1)
                 img.save(plt)
-        img.create_gif()
+        img.create_instance_gif()
 
     @staticmethod
     def get_coordinates(objects):

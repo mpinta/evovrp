@@ -1,12 +1,14 @@
+import operator
 import numpy as np
 import evovrp.graph as graph
+import evovrp.image as image
 import evovrp.classes as classes
 
 
 class Evaluation(object):
     fitnesses = []
 
-    def __init__(self, objects, population_size):
+    def __init__(self, objects, generations, population_size):
         self.Lower = 0
         self.Upper = 10
         self.penalty = 20
@@ -16,6 +18,7 @@ class Evaluation(object):
         self.instance_counter = 0
         self.generation_counter = 1
         self.population_size = population_size
+        self.generations = generations
 
     def function(self):
         def evaluate(d, sol):
@@ -54,6 +57,12 @@ class Evaluation(object):
 
             fitness = self.create_fitness(results, phenotype)
             g.draw(results, fitness)
+
+            if self.instance_counter == self.population_size:
+                self.find_best_instance()
+                if self.generation_counter == self.generations:
+                    self.create_best_instances_gif()
+
             return fitness.value
         return evaluate
 
@@ -75,6 +84,17 @@ class Evaluation(object):
         curr_result.depot = self.depots[vehicle_depot_counter]
         return curr_result
 
+    @staticmethod
+    def find_overall_best_instance(fitness):
+        for i in Evaluation.fitnesses:
+            if i.value == fitness:
+                return i
+
+    def find_best_instance(self):
+        instances = [i for i in Evaluation.fitnesses if i.generation == self.generation_counter]
+        best_instance = min(instances, key=operator.attrgetter('value'))
+        best_instance.best_instance = True
+
     def find_customer(self, key):
         for i in self.customers:
             if i.key == key:
@@ -89,12 +109,6 @@ class Evaluation(object):
         if (i + 1) >= len(self.customers):
             return -1
         return self.find_customer(phenotype[i + 1])
-
-    @staticmethod
-    def find_best_instance(fitness):
-        for i in Evaluation.fitnesses:
-            if i.value == fitness:
-                return i
 
     @staticmethod
     def check_for_penalty(curr_result):
@@ -113,8 +127,14 @@ class Evaluation(object):
             return False
         return True
 
+    @staticmethod
+    def create_best_instances_gif():
+        indexes = [i for i in range(len(Evaluation.fitnesses)) if Evaluation.fitnesses[i].best_instance]
+        image.Image.create_best_instances_gif(indexes)
+
     def create_fitness(self, results, phenotype):
-        fitness = classes.Fitness(self.generation_counter, self.instance_counter, self.get_fitness(results), phenotype.tolist())
+        fitness = classes.Fitness(self.generation_counter, self.instance_counter,
+                                  self.get_fitness(results), phenotype.tolist())
         Evaluation.fitnesses.append(fitness)
         return fitness
 

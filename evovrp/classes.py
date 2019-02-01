@@ -37,4 +37,4 @@ class Fitness:
         self.instance = instance
         self.value = value
         self.phenotype = phenotype
-
+        self.best_instance = False
