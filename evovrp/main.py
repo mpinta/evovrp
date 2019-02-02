@@ -15,14 +15,14 @@ def print_result(best_instance):
     print('Phenotype: ' + str(best_instance.phenotype))
 
 
-def main(file_name, generations, population_size):
+def main(file_name, generations, population_size, phenotype_coding):
     directory.Directory().delete_directories()
 
     f = file.File('../datasets/' + file_name)
     objects = f.read()
 
-    task = Task(D=len(objects[1]), nGEN=generations, benchmark=evaluation.Evaluation(objects, generations, population_size),
-                optType=OptimizationType.MINIMIZATION)
+    task = Task(D=len(objects[1]), nGEN=generations, benchmark=evaluation.Evaluation(
+        objects, generations, population_size, phenotype_coding), optType=OptimizationType.MINIMIZATION)
     ga = GeneticAlgorithm(seed=randint(1000, 10000), task=task, NP=population_size)
 
     result, fitness = ga.run()
@@ -30,4 +30,4 @@ def main(file_name, generations, population_size):
 
 
 if __name__ == '__main__':
-    main('example', 5, 5)
+    main('example', 5, 5, 1)

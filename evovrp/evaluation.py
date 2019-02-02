@@ -6,9 +6,9 @@ import evovrp.classes as classes
 
 
 class Evaluation(object):
-    fitnesses = []
+    fitness_list = []
 
-    def __init__(self, objects, generations, population_size):
+    def __init__(self, objects, generations, population_size, phenotype_coding):
         self.Lower = 0
         self.Upper = 10
         self.penalty = 20
@@ -19,21 +19,23 @@ class Evaluation(object):
         self.generation_counter = 1
         self.population_size = population_size
         self.generations = generations
+        self.phenotype_coding = phenotype_coding
 
     def function(self):
-        def evaluate(d, sol):
+        def evaluate(d, genotype):
             self.set_instance_counter()
             self.set_generation_counter()
 
             results = []
+            customers_counter = 0
             vehicle_depot_counter = 0
             vehicle_depot_changed = False
-            phenotype = self.to_phenotype(sol)
+            phenotype = self.to_phenotype(genotype)
             curr_result = classes.Result(self.generation_counter, self.instance_counter)
-
             g = graph.Graph(self.vehicles, self.customers, self.depots)
 
             for i in range(d):
+                customers_counter += 1
                 curr_result = self.set_vehicle_depot(curr_result, vehicle_depot_counter)
 
                 prev_customer = self.find_previous_customer(i, vehicle_depot_changed, phenotype)
@@ -44,16 +46,22 @@ class Evaluation(object):
                 curr_result = self.add_customer_to_result(curr_result, curr_customer)
                 vehicle_depot_changed = False
 
-                if not self.check_next_customer(curr_result, curr_customer, next_customer):
+                if self.phenotype_coding == 2 and curr_result.depot.customers_num == customers_counter:
+                    vehicle_depot_changed = True
+
+                if not self.check_next_customer(curr_result, curr_customer, next_customer) or vehicle_depot_changed:
                     curr_result = self.get_last_distance(curr_result, curr_customer)
 
                     if self.check_for_penalty(curr_result):
                         self.add_penalty(curr_result)
-
                     results.append(curr_result)
+
+                    if self.phenotype_coding == 1 or (self.phenotype_coding == 2 and
+                                                      curr_result.depot.customers_num == customers_counter):
+                        vehicle_depot_changed = True
+                        vehicle_depot_counter = self.set_vehicle_depot_counter(vehicle_depot_counter)
+                        customers_counter = 0
                     curr_result = classes.Result(self.generation_counter, self.instance_counter)
-                    vehicle_depot_changed = True
-                    vehicle_depot_counter = self.set_vehicle_depot_counter(vehicle_depot_counter)
 
             fitness = self.create_fitness(results, phenotype)
             g.draw(results, fitness)
@@ -86,12 +94,12 @@ class Evaluation(object):
 
     @staticmethod
     def find_overall_best_instance(fitness):
-        for i in Evaluation.fitnesses:
+        for i in Evaluation.fitness_list:
             if i.value == fitness:
                 return i
 
     def find_best_instance(self):
-        instances = [i for i in Evaluation.fitnesses if i.generation == self.generation_counter]
+        instances = [i for i in Evaluation.fitness_list if i.generation == self.generation_counter]
         best_instance = min(instances, key=operator.attrgetter('value'))
         best_instance.best_instance = True
 
@@ -129,13 +137,13 @@ class Evaluation(object):
 
     @staticmethod
     def create_best_instances_gif():
-        indexes = [i for i in range(len(Evaluation.fitnesses)) if Evaluation.fitnesses[i].best_instance]
+        indexes = [i for i in range(len(Evaluation.fitness_list)) if Evaluation.fitness_list[i].best_instance]
         image.Image.create_best_instances_gif(indexes)
 
     def create_fitness(self, results, phenotype):
         fitness = classes.Fitness(self.generation_counter, self.instance_counter,
-                                  self.get_fitness(results), phenotype.tolist())
-        Evaluation.fitnesses.append(fitness)
+                                  self.get_fitness(results), phenotype)
+        Evaluation.fitness_list.append(fitness)
         return fitness
 
     @staticmethod
@@ -181,6 +189,36 @@ class Evaluation(object):
         curr_result.distance += self.penalty
         return curr_result
 
+    def to_phenotype(self, genotype):
+        if self.phenotype_coding == 1:
+            return self.to_first_phenotype(genotype)
+        elif self.phenotype_coding == 2:
+            return self.to_second_phenotype(genotype)
+
     @staticmethod
-    def to_phenotype(sol):
-        return np.argsort(np.argsort(sol)) + 1
+    def to_first_phenotype(genotype):
+        return (np.argsort(np.argsort(genotype)) + 1).tolist()
+
+    def to_second_phenotype(self, genotype):
+        divider = 10 / len(self.depots)
+
+        scale = [0]
+        for i in range(len(self.depots)):
+            setattr(self.depots[i], 'phenotype', [])
+            scale.append(scale[-1] + divider)
+
+        ordered = Evaluation.to_first_phenotype(genotype)
+
+        for i in range(len(genotype)):
+            for j in range(len(scale)):
+                if scale[j] <= genotype[i] < scale[j + 1]:
+                    self.depots[j].phenotype.append(ordered[i])
+                    break
+
+        phenotype = []
+        for i in self.depots:
+            setattr(i, 'customers_num', len(i.phenotype))
+            phenotype += i.phenotype
+            delattr(i, 'phenotype')
+
+        return phenotype
