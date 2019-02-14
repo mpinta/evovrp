@@ -126,6 +126,7 @@ class Evaluation(object):
                 self.find_best_instance()
                 if self.generation_counter == self.generations:
                     self.create_best_instances_gif()
+                    self.create_fitness_image()
 
             return fitness.value
         return evaluate
@@ -361,6 +362,22 @@ class Evaluation(object):
         indexes = [i for i in range(len(Evaluation.fitness_list)) if Evaluation.fitness_list[i].best_instance]
         image.Image.create_best_instances_gif(indexes)
 
+    @staticmethod
+    def create_fitness_image():
+        """Calls creation of fitness image.
+
+        Calls creation of image that shows fitness values
+        through generations.
+
+        Args:
+            Method does not have any arguments.
+
+        Returns:
+            Method does not return anything.
+        """
+
+        graph.Graph.draw_fitness_graph(Evaluation.fitness_list)
+
     def create_fitness(self, results, phenotype):
         """Creates a new fitness.
 
@@ -510,26 +527,6 @@ class Evaluation(object):
         curr_result.distance += self.penalty
         return curr_result
 
-    def to_phenotype(self, genotype):
-        """Calls the conversion to phenotype.
-
-        Calls the specific conversion from genotype to phenotype based
-        on phenotype coding value.
-
-        Args:
-            genotype: An array of float values, indicating genotype
-            of an instance.
-
-        Returns:
-            A method which returns an array of integer values,
-            indicating phenotype.
-        """
-
-        if self.phenotype_coding == 1:
-            return self.to_first_phenotype(genotype)
-        elif self.phenotype_coding == 2:
-            return self.to_second_phenotype(genotype)
-
     @staticmethod
     def to_first_phenotype(genotype):
         """Converts genotype to phenotype with first method.
@@ -586,3 +583,23 @@ class Evaluation(object):
             delattr(i, 'phenotype')
 
         return phenotype
+
+    def to_phenotype(self, genotype):
+        """Calls the conversion to phenotype.
+
+        Calls the specific conversion from genotype to phenotype based
+        on phenotype coding value.
+
+        Args:
+            genotype: An array of float values, indicating genotype
+            of an instance.
+
+        Returns:
+            A method which returns an array of integer values,
+            indicating phenotype.
+        """
+
+        if self.phenotype_coding == 1:
+            return self.to_first_phenotype(genotype)
+        elif self.phenotype_coding == 2:
+            return self.to_second_phenotype(genotype)

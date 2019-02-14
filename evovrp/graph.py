@@ -9,7 +9,8 @@ class Graph:
     Class manages drawing of a graph; it draws customers, depots,
     connections between them and a legend. It also draws text
     information about generation, instance and fitness value on
-    the graph.
+    the graph. It is responsible for drawing a graph that shows
+    fitness values through generations.
 
     Attributes:
         customers: An array of Customer objects, indicating all the
@@ -21,6 +22,81 @@ class Graph:
         """Inits Graph with customers and depots."""
         self.customers = customers
         self.depots = depots
+
+    @staticmethod
+    def draw_fitness_graph(fitness_list):
+        """Draws fitness values graph and saves image.
+
+        Draws graph that shows fitness values through
+        generations and then calls saving of it.
+
+        Args:
+            fitness_list: An array of Fitness objects, indicating
+            final results of instances in evaluation.
+
+        Returns:
+            Method does not return anything.
+        """
+
+        generations = fitness_list[-1].generation
+        instances = fitness_list[-1].instance
+
+        data = Graph.get_fitness_data(fitness_list)
+        values = [i[0] for i in data]
+        titles = [i[1] for i in data]
+
+        plt.figure(figsize=(20, 15), dpi=120)
+        plt.rcParams.update({'font.size': 16})
+
+        counter = 0
+        for i in range(generations):
+            color = np.random.random(3)
+            plt.bar(titles[counter:(counter + instances)], values[counter:(counter + instances)],
+                    .8, alpha=0.5, label='Generation ' + str(i + 1), color=color)
+            counter += instances
+
+        plt.xticks([])
+        plt.ylabel('Fitness')
+        plt.xlabel('Instances')
+        Graph.draw_legend()
+        plt.suptitle('Fitness values through generations', fontsize=22)
+
+        image.Image.save_fitness_image(plt)
+        plt.close()
+
+    @staticmethod
+    def draw_legend():
+        """Draws legend.
+
+        Draws a legend, which is made of a color circle and
+        belonging label.
+
+        Args:
+            Method does not have any arguments.
+
+        Returns:
+            Method does not return anything.
+        """
+
+        plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), fancybox=True, shadow=True, ncol=5)
+
+    @staticmethod
+    def draw_text(fitness):
+        """Draws text.
+
+        Draws text with information about generation, instance and
+        fitness value of graph.
+
+        Args:
+            fitness: A Fitness object, indicating final result of instance
+            in evaluation.
+
+        Returns:
+            Method does not return anything.
+        """
+
+        plt.suptitle('Generation: ' + str(fitness.generation) + ', Instance: ' + str(fitness.instance), fontsize=16)
+        plt.title('Fitness: ' + str(round(fitness.value, 2)), fontsize=14)
 
     def draw(self, results, fitness):
         """Draws a graph.
@@ -89,40 +165,6 @@ class Graph:
                 plt.scatter(i[0], i[1], alpha=0.8, c='C1', edgecolors='C1', s=30, label='Customer', zorder=2)
             plt.scatter(i[0], i[1], alpha=0.8, c='C1', edgecolors='C1', s=30, zorder=2)
 
-    @staticmethod
-    def draw_legend():
-        """Draws legend.
-
-        Draws a legend, which is made of a color circle and
-        belonging label.
-
-        Args:
-            Method does not have any arguments.
-
-        Returns:
-            Method does not return anything.
-        """
-
-        plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), fancybox=True, shadow=True, ncol=2)
-
-    @staticmethod
-    def draw_text(fitness):
-        """Draws text.
-
-        Draws text with information about generation, instance and
-        fitness value of graph.
-
-        Args:
-            fitness: A Fitness object, indicating final result of instance
-            in evaluation.
-
-        Returns:
-            Method does not return anything.
-        """
-
-        plt.suptitle('Generation: ' + str(fitness.generation) + ', Instance: ' + str(fitness.instance), fontsize=16)
-        plt.title('Fitness: ' + str(round(fitness.value, 2)), fontsize=14)
-
     def draw_connections(self, results, fitness):
         """Draws connections and saves images.
 
@@ -173,6 +215,26 @@ class Graph:
         coordinates = []
         for i in data:
             coordinates.append([i.x, i.y])
+        return coordinates
+
+    @staticmethod
+    def get_fitness_data(fitness_list):
+        """Gets fitness data.
+
+        Gets fitness value, generation and instance from
+        fitness results.
+
+        Args:
+            fitness_list: An array of Fitness objects, indicating
+            final results of instances in evaluation.
+
+        Returns:
+            An array consisting of arrays of float and string values.
+        """
+
+        coordinates = []
+        for i in fitness_list:
+            coordinates.append([i.value, str(i.generation) + '.' + str(i.instance)])
         return coordinates
 
     def get_connection_coordinates(self, results):
