@@ -60,4 +60,4 @@ def main(file_name, generations, population_size, phenotype_coding):
 
 
 if __name__ == '__main__':
-    main('pr00', 5, 5, 1)
+    main('C-mdvrptw/pr00', 5, 5, 1)
