@@ -21,15 +21,15 @@ In `main.py` import any evolutionary algorithm from the NiaPy library and set th
 * `algorithm` - imported evolutionary algorithm from the NiaPy library,
 * `generations` - number of generations,
 * `population_size` - number of instances inside one generation,
-* `phenotype_coding` - genotype-to-phenotype coding method; `1` for the first and `2` for the second method.
+* `phenotype_coding` - genotype-to-phenotype coding method; `method.Method.FIRST` for the first and `method.Method.SECOND` for the second method.
 
 ### Example
 The following code solves `pr01` MDVRP case from the `C-mdvrp` dataset using a `genetic algorithm` of `10` generations, population size of `5` and `first genotype-to-phenotype` coding method:
-```
+```python
 from NiaPy.algorithms.basic.ga import GeneticAlgorithm
 
 if __name__ == '__main__':
-    main('C-mdvrp/pr01', GeneticAlgorithm, 10, 5, 1)
+    main('C-mdvrp/pr01', GeneticAlgorithm, 10, 5, method.Method.FIRST)
 ```
 
 ### Output

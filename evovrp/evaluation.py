@@ -2,6 +2,7 @@ import operator
 import numpy as np
 import evovrp.graph as graph
 import evovrp.image as image
+import evovrp.method as method
 import evovrp.classes as classes
 
 
@@ -24,7 +25,7 @@ class Evaluation(object):
         be created.
         population_size: An integer, indicating number of instances that will
         be created inside one generation.
-        phenotype_coding: An integer, indicating which genotype-to-phenotype
+        phenotype_coding: An enum type, indicating which genotype-to-phenotype
         coding will be used in evaluation.
         fintess_list: An array of Fitness objects, indicating final results of
         instances in evaluation.
@@ -102,7 +103,8 @@ class Evaluation(object):
                 curr_result = self.add_customer_to_result(curr_result, curr_customer)
                 vehicle_depot_changed = False
 
-                if self.phenotype_coding == 2 and curr_result.depot.customers_num == customers_counter:
+                if self.phenotype_coding == method.Method.SECOND and \
+                        curr_result.depot.customers_num == customers_counter:
                     vehicle_depot_changed = True
 
                 if not self.check_next_customer(curr_result, curr_customer, next_customer) or vehicle_depot_changed:
@@ -112,8 +114,9 @@ class Evaluation(object):
                         self.add_penalty(curr_result)
                     results.append(curr_result)
 
-                    if self.phenotype_coding == 1 or (self.phenotype_coding == 2 and
-                                                      curr_result.depot.customers_num == customers_counter):
+                    if self.phenotype_coding == method.Method.FIRST or \
+                            (self.phenotype_coding == method.Method.SECOND and
+                             curr_result.depot.customers_num == customers_counter):
                         vehicle_depot_changed = True
                         vehicle_depot_counter = self.set_vehicle_depot_counter(vehicle_depot_counter)
                         customers_counter = 0
@@ -599,7 +602,7 @@ class Evaluation(object):
             indicating phenotype.
         """
 
-        if self.phenotype_coding == 1:
+        if self.phenotype_coding == method.Method.FIRST:
             return self.to_first_phenotype(genotype)
-        elif self.phenotype_coding == 2:
+        elif self.phenotype_coding == method.Method.SECOND:
             return self.to_second_phenotype(genotype)

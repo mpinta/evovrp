@@ -1,4 +1,5 @@
 import evovrp.file as file
+import evovrp.method as method
 import evovrp.directory as directory
 import evovrp.evaluation as evaluation
 
@@ -43,7 +44,7 @@ def main(file_name, algorithm, generations, population_size, phenotype_coding):
         be created.
         population_size: An integer, indicating number of instances that will
         be created inside one generation.
-        phenotype_coding: An integer, indicating which genotype-to-phenotype
+        phenotype_coding: An enum type, indicating which genotype-to-phenotype
         coding will be used in evaluation.
 
     Returns:
@@ -62,4 +63,4 @@ def main(file_name, algorithm, generations, population_size, phenotype_coding):
 
 
 if __name__ == '__main__':
-    main('C-mdvrptw/pr00', GeneticAlgorithm, 5, 5, 1)
+    main('C-mdvrptw/pr00', GeneticAlgorithm, 5, 5, method.Method.FIRST)
