@@ -10,26 +10,32 @@ Solving multi-depot vehicle routing problem (_MDVRP_) using evolutionary algorit
 
 You can install them using the `setup.py` script:
 ```
-$ git clone https://github.com/karakatic/evovrp
+$ git clone https://github.com/mpinta/evovrp
 $ cd evovrp
-$ python setup.py install
+$ sudo python3.6 setup.py install
+```
+
+You can run the program with following commands:
+```
+$ cd evovrp/evovrp
+$ python3.6 main.py
 ```
 
 ## Usage
 In `main.py` import any evolutionary algorithm from the NiaPy library and set the input parameters of the `main` function:
-* `file_name` - directory of a dataset file,
+* `file_name` - location of a dataset file,
 * `algorithm` - imported evolutionary algorithm from the NiaPy library,
-* `generations` - number of generations,
+* `iterations` - number of iterations,
 * `population_size` - number of instances inside one generation,
 * `phenotype_coding` - genotype-to-phenotype coding method; `method.Method.FIRST` for the first and `method.Method.SECOND` for the second method.
 
 ### Example
-The following code solves `pr01` MDVRP case from the `C-mdvrp` dataset using a `genetic algorithm` of `10` generations, population size of `5` and `first genotype-to-phenotype` coding method:
+The following code solves `p01` MDVRP case from the `C-mdvrp` dataset using a `genetic algorithm` of `10` generations, population size of `5` and `first genotype-to-phenotype` coding method:
 ```python
 from NiaPy.algorithms.basic.ga import GeneticAlgorithm
 
 if __name__ == '__main__':
-    main('C-mdvrp/pr01', GeneticAlgorithm, 10, 5, method.Method.FIRST)
+    main('C-mdvrp/p01', GeneticAlgorithm, 50, 5, method.Method.FIRST)
 ```
 
 ### Output
