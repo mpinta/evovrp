@@ -15,12 +15,6 @@ $ cd evovrp
 $ sudo python3.6 setup.py install
 ```
 
-You can run the program with following commands:
-```
-$ cd evovrp/evovrp
-$ python3.6 main.py
-```
-
 ## Usage
 In `main.py` import any evolutionary algorithm from the NiaPy library and set the input parameters of the `main` function:
 * `file_name` - location of a dataset file,
@@ -36,6 +30,12 @@ from NiaPy.algorithms.basic.ga import GeneticAlgorithm
 
 if __name__ == '__main__':
     main('C-mdvrp/p01', GeneticAlgorithm, 50, 5, method.Method.FIRST)
+```
+
+You can run the program with following commands:
+```
+$ cd evovrp/evovrp
+$ python3.6 main.py
 ```
 
 ### Output
