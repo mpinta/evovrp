@@ -27,7 +27,7 @@ def print_result(best_instance):
     print('Phenotype: ' + str(best_instance.phenotype))
 
 
-def main(file_name, algorithm, generations, population_size, phenotype_coding):
+def main(file_name, algorithm, iterations, population_size, phenotype_coding):
     """Main function.
 
     Function is used for connecting the main parts of a project. Firstly, it
@@ -40,8 +40,7 @@ def main(file_name, algorithm, generations, population_size, phenotype_coding):
         file_name: A string, indicating name of a file, which will be read.
         algorithm: A NiaPy algorithm, indicating evolutionary algorithm
         that will be used.
-        generations: An integer, indicating number of generations that will
-        be created.
+        iterations: An integer, indicating number of repetitions.
         population_size: An integer, indicating number of instances that will
         be created inside one generation.
         phenotype_coding: An enum type, indicating which genotype-to-phenotype
@@ -54,8 +53,8 @@ def main(file_name, algorithm, generations, population_size, phenotype_coding):
     directory.Directory().delete_directories()
     objects = file.File.read('../datasets/' + file_name)
 
-    task = Task(D=len(objects[1]), nGEN=generations, benchmark=evaluation.Evaluation(
-        objects, generations, population_size, phenotype_coding), optType=OptimizationType.MINIMIZATION)
+    task = Task(D=len(objects[1]), nFES=iterations, benchmark=evaluation.Evaluation(
+        objects, iterations, population_size, phenotype_coding), optType=OptimizationType.MINIMIZATION)
     alg = algorithm(seed=randint(1000, 10000), task=task, NP=population_size)
 
     result, fitness = alg.run()
@@ -63,4 +62,4 @@ def main(file_name, algorithm, generations, population_size, phenotype_coding):
 
 
 if __name__ == '__main__':
-    main('C-mdvrptw/pr00', GeneticAlgorithm, 5, 5, method.Method.FIRST)
+    main('C-mdvrptw/pr00', GeneticAlgorithm, 25, 5, method.Method.FIRST)

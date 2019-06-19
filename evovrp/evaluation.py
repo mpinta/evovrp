@@ -21,19 +21,18 @@ class Evaluation(object):
     Attributes:
         objects: An array of three different arrays, each with different type,
         storing Vehicle, Customer and Depot objects, indicating data.
-        generations: An integer, indicating number of generations that will
-        be created.
+        iterations: An integer, indicating number of repetitions.
         population_size: An integer, indicating number of instances that will
         be created inside one generation.
         phenotype_coding: An enum type, indicating which genotype-to-phenotype
         coding will be used in evaluation.
-        fintess_list: An array of Fitness objects, indicating final results of
+        fitness_list: An array of Fitness objects, indicating final results of
         instances in evaluation.
     """
 
     fitness_list = []
 
-    def __init__(self, objects, generations, population_size, phenotype_coding):
+    def __init__(self, objects, iterations, population_size, phenotype_coding):
         """Inits Evaluation with objects, generations, population size and
         phenotype coding, sets lower and upper values to zero and ten, sets
         penalty value, instance counter and generation counter."""
@@ -46,7 +45,7 @@ class Evaluation(object):
         self.instance_counter = 0
         self.generation_counter = 1
         self.population_size = population_size
-        self.generations = generations
+        self.generations = iterations / population_size
         self.phenotype_coding = phenotype_coding
 
     def function(self):
@@ -575,6 +574,10 @@ class Evaluation(object):
 
         for i in range(len(genotype)):
             for j in range(len(scale)):
+                if genotype[i] == scale[-1]:
+                    self.depots[-1].phenotype.append(ordered[i])
+                    break
+
                 if scale[j] <= genotype[i] < scale[j + 1]:
                     self.depots[j].phenotype.append(ordered[i])
                     break

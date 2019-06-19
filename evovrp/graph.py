@@ -52,7 +52,7 @@ class Graph:
         for i in range(generations):
             color = np.random.random(3)
             plt.bar(titles[counter:(counter + instances)], values[counter:(counter + instances)],
-                    .8, alpha=0.5, label='Generation ' + str(i + 1), color=color)
+                    0.8, alpha=0.5, label='Generation ' + str(i + 1), color=color)
             counter += instances
 
         plt.xticks([])
