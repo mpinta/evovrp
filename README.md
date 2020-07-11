@@ -12,7 +12,7 @@ You can install them using the `setup.py` script:
 ```
 $ git clone https://github.com/mpinta/evovrp
 $ cd evovrp
-$ sudo python3.6 setup.py install
+$ python setup.py install
 ```
 
 ## Usage
@@ -35,7 +35,7 @@ if __name__ == '__main__':
 You can run the program with following commands:
 ```
 $ cd evovrp/evovrp
-$ python3.6 main.py
+$ python main.py
 ```
 
 ### Output
