@@ -1,9 +1,9 @@
+import graph
+import image
+import method
+import classes
 import operator
 import numpy as np
-import evovrp.graph as graph
-import evovrp.image as image
-import evovrp.method as method
-import evovrp.classes as classes
 
 
 class Evaluation(object):
@@ -609,3 +609,4 @@ class Evaluation(object):
             return self.to_first_phenotype(genotype)
         elif self.phenotype_coding == method.Method.SECOND:
             return self.to_second_phenotype(genotype)
+

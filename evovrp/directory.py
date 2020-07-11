@@ -1,6 +1,6 @@
 import os
+import utils
 import shutil
-import evovrp.utils as utils
 
 
 class Directory(object):
@@ -105,3 +105,4 @@ class Directory(object):
 
         if not os.path.exists(utils.images_dir + utils.generation_dir + generation + utils.instance_dir + instance):
             os.makedirs(utils.images_dir + utils.generation_dir + generation + utils.instance_dir + instance)
+

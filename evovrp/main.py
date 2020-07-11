@@ -1,7 +1,7 @@
-import evovrp.file as file
-import evovrp.method as method
-import evovrp.directory as directory
-import evovrp.evaluation as evaluation
+import file
+import method
+import directory
+import evaluation
 
 from random import randint
 from NiaPy.util import Task, OptimizationType
@@ -63,3 +63,4 @@ def main(file_name, algorithm, iterations, population_size, phenotype_coding):
 
 if __name__ == '__main__':
     main('C-mdvrptw/pr00', GeneticAlgorithm, 25, 5, method.Method.FIRST)
+

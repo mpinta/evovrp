@@ -1,5 +1,5 @@
+import image
 import numpy as np
-import evovrp.image as image
 import matplotlib.pyplot as plt
 
 
@@ -255,3 +255,4 @@ class Graph:
         coordinates.insert(0, [results.depot.x, results.depot.y])
         coordinates.append([results.depot.x, results.depot.y])
         return coordinates
+

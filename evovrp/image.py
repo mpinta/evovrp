@@ -1,7 +1,7 @@
 import os
+import utils
 import imageio
-import evovrp.utils as utils
-import evovrp.directory as directory
+import directory
 
 
 class Image:
@@ -148,3 +148,4 @@ class Image:
 
         file_names.sort(key=lambda i: int(''.join(filter(str.isdigit, i))))
         return file_names
+

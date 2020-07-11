@@ -1,5 +1,5 @@
 import csv
-import evovrp.classes as classes
+import classes
 
 
 class File(object):
@@ -116,3 +116,4 @@ class File(object):
                     row.append(j)
             cleaned.append(row)
         return cleaned
+
