@@ -6,7 +6,7 @@ Solving multi-depot vehicle routing problem (_MDVRP_) using evolutionary algorit
 * Pip
 
 ### Dependencies in order for the project to run are:
-`numpy, imageio, matplotlib and NiaPy==2.0.0rc4`
+`numpy`, `imageio`, `matplotlib` and `NiaPy==2.0.0rc4`
 
 You can install them using the `setup.py` script:
 ```
@@ -16,7 +16,7 @@ $ python setup.py install
 ```
 
 ## Usage
-In `main.py` import any evolutionary algorithm from the NiaPy library and set the input parameters of the `main` function:
+In `main.py` import any evolutionary algorithm from the [NiaPy](https://github.com/NiaOrg/NiaPy) library and set the input parameters of the `main` function:
 * `file_name` - location of a dataset file,
 * `algorithm` - imported evolutionary algorithm from the NiaPy library,
 * `iterations` - number of iterations,
@@ -47,6 +47,21 @@ Used datasets are taken from the University of Málaga - Networking and Emerging
 * [Multiple Depot VRP with Time Windows Instances](http://neo.lcc.uma.es/vrp/vrp-instances/multiple-depot-vrp-with-time-windows-instances/)
 
 Both used datasets are designed by **Cordeau**.
+
+## Publications
+The code was originally used in the following publications:
+```
+Pintarič Matic, (2019).
+Reševanje problema usmerjanja vozil s pomočjo evolucijskih algoritmov.
+Maribor: University of Maribor, Faculty of Electrical Engineering and Computer Science.
+```
+
+```
+Pintarič Matic, Karakatič Sašo, (2019).
+Solving multi-depot vehicle routing problem with particle swarm optimization.
+In: Iztok Fister Jr., Andrej Brodnik, Matjaž Krnc and Iztok Fister (eds.). Proceedings of the 2019 6th Student Computer Science Research Conference - StuCoSReC, (pp. 53-56).
+Koper: University of Primorska Press.
+```
 
 #### Disclaimer
 _The goal of the project is not optimization of evolutionary algorithms, but the use of different algorithms to solve the multi-depot vehicle routing problem._
